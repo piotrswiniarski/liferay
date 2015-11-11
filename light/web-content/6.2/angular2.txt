@@ -1,0 +1,29 @@
+<script src= "https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+
+<div ng-app="myApp" ng-controller="personCtrl as ctrl">
+
+<p>This web content uses Angular JS, Liferay Service (JSONWS API) and display email address of current user.</p>
+<button class="btn" ng-click="ctrl.userData()">Get user email</button>
+
+<p>User Email: <input ng-model="ctrl.email" type="text" /></p>
+
+</div>
+
+<script>
+angular.module('myApp', []).controller('personCtrl', ['$scope', func-tion($scope){
+    var self = this;
+    self.email= "";
+    self.userData = function() {
+        window.Liferay.Service(
+          '/user/get-user-by-id',
+          {
+            userId: window.Liferay.ThemeDisplay.getUserId()
+          },
+          function(obj) {
+            self.email = obj.emailAddress;
+            $scope.$apply();
+          }
+        );
+    };
+}]);
+</script>

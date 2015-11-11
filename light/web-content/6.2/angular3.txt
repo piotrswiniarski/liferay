@@ -1,0 +1,48 @@
+<script src= "https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+
+<p>This web content uses AngualrJS, Liferay Service (JSONWS API) and allows to get and save email address of current user.</p>
+<div ng-app="myApp" ng-controller="personCtrl as ctrl">
+
+<button class="btn" ng-click="ctrl.userData()">Get user email</button>
+
+<p>Enter Email: <input ng-model="ctrl.email1" type="text" /></p>
+
+<p>Repeat Email: <input ng-model="ctrl.email2" type="text" /></p>
+
+<button class="btn btn-primary" ng-click="ctrl.submitData()">Save</button>
+
+</div>
+
+<script>
+angular.module('myApp', []).controller('personCtrl', ['$scope', func-tion($scope){
+    var self = this;
+    self.email1= "";
+    self.email2= "";
+    self.userData = function() {
+        window.Liferay.Service(
+          '/user/get-user-by-id',
+          {
+            userId: window.Liferay.ThemeDisplay.getUserId()
+          },
+          function(obj) {
+            self.email1 = obj.emailAddress;
+            self.email2 = obj.emailAddress;
+            $scope.$apply();
+          }
+        );
+    };
+    self.submitData = function() {
+        window.Liferay.Service(
+          '/user/update-email-address',
+          {
+             userId: window.Liferay.ThemeDisplay.getUserId(),
+             password: "",
+             emailAddress1: self.email1,
+             emailAddress2: self.email2
+          },
+          function(obj) {
+          }
+        );
+    };
+}]);
+</script>
