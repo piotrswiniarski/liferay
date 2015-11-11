@@ -1,0 +1,20 @@
+<script src= "https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+
+<div ng-app="myApp" ng-controller="personCtrl as ctrl">
+
+<button class="btn" ng-click="ctrl.userData()">Get user data</button>
+
+<p>User Name: <input ng-model="ctrl.userName" type="text" /></p>
+
+</div>
+
+<script>
+angular.module('myApp', []).controller('personCtrl', personCtrl);
+function personCtrl() {
+    var self = this;
+    self.userName = "";
+    self.userData = function() {
+        self.userName = window.Liferay.ThemeDisplay.getUserName();
+    };
+}
+</script>
