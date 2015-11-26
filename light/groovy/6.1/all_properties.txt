@@ -1,0 +1,12 @@
+import com.liferay.portal.kernel.util.PropsUtil;
+try{
+items = PropsUtil.getProperties().keys();
+while(items.hasMoreElements()){
+key = (String)items.nextElement();
+     out.println(key+"="+PropsUtil.get(key));
+
+}
+
+}catch(Exception e){
+out.println(e.getMessage());
+}

@@ -1,0 +1,13 @@
+import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil;
+import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
+
+try {
+
+
+structures = DDMStructureLocalServiceUtil.getStructures();
+for(DDMStructure structure : structures){
+out.println(structure.getName()+" : "+structure.getAvailableLanguageIds()+" ="+structure.getGroupId())
+}
+} catch (Exception e) {
+            out.println(e.getMessage());
+}

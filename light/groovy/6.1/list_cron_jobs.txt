@@ -1,0 +1,31 @@
+import com.liferay.portal.kernel.scheduler.SchedulerEngineUtil;
+import com.liferay.portal.kernel.scheduler.Trigger;
+import com.liferay.portal.kernel.scheduler.messaging.SchedulerResponse;
+
+import java.util.List;
+
+try {
+    List<SchedulerResponse> sjobs = SchedulerEngineUtil.getScheduledJobs();
+
+    for (SchedulerResponse sresponse : sjobs) {
+            out.println(sresponse.getJobName());
+            out.println("trigger data: " + sresponse.getTrigger());
+            out.println("curr date time: " + new Date());
+            out.println("PST time: " + new Date());
+            out.println("next fire time: " + SchedulerEngineUtil.getNextFireTime(sresponse));
+            out.println("message: " + sresponse.getMessage());
+
+            Trigger trigger = sresponse.getTrigger();
+
+            out.println("trigger")
+            out.println("trigger job name: " + trigger.getJobName())
+            out.println("trigger value: " + trigger.getTriggerContent());
+            out.println("startDate: " + trigger.getStartDate());
+            out.println("endDate: " + trigger.getEndDate());
+            out.println();
+        
+    }
+}
+catch(e) {
+    out.println("""<div class="portlet-msg-error">${e}</div>""")
+}

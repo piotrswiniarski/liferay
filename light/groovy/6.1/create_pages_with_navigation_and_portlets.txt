@@ -1,0 +1,179 @@
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.service.LayoutLocalServiceUtil;
+import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.model.LayoutTypePortlet;
+import com.liferay.portal.util.PortletKeys;
+import com.liferay.portal.service.PortletPreferencesLocalServiceUtil;
+import javax.portlet.PortletPreferences;
+import com.liferay.portal.util.PortalUtil;
+import com.liferay.portal.service.PortletLocalServiceUtil;
+import javax.portlet.Portlet;
+import com.liferay.portal.kernel.portlet.PortletLayoutListener;
+import com.liferay.portlet.journal.NoSuchArticleException;
+import com.liferay.portlet.journal.model.JournalArticle;
+import com.liferay.portlet.journal.model.JournalArticleConstants;
+import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil
+import com.liferay.portlet.journal.service.JournalArticleServiceUtil
+import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.ParamUtil;
+
+// this script creates pages and web contents, then it sets layout and put portlets according to pagesArray
+// id of parent page (Layout) in my case = 2
+long parentPlid = 2
+
+// id of group in my case = 26918
+long groupId= 26918
+
+// user id
+long userId=4221201
+
+// article id that will be used as copy pattern
+String copyArticleId=27557;
+
+// are sites private 
+privateLayout=false
+
+String type = "portlet";
+boolean hidden= false;
+
+out.println("User info:")
+out.println("userId:"+userInfo.get("liferay.user.id"))
+ServiceContext serviceContext = new ServiceContext();
+
+// articles array:
+// 0: id of article: articles1
+// 1: title
+// 2: article content (html)
+
+def articlesArray = [
+[ "ARTICLE1","title1", "<div>test content1</div>"],
+[ "ARTICLE2","title2", "<div>test content2<a href=\"http://www.google.com\" >LINK</a></div>"]
+]
+
+def matrixA = articlesArray as String[][] 
+
+for(String[] line: matrixA){
+ try{
+  JournalArticle article = JournalArticleServiceUtil.getArticle(groupId, line[0]);
+  out.println("article: "+line[0]+" exist, deleting");
+  JournalArticleServiceUtil.deleteArticle(groupId, article.getArticleId(), '/' , serviceContext )
+
+ }catch (NoSuchArticleException nae){
+  out.println("article: "+line[0]+" does not exist");
+  def titleMap = ["de_CH":line[1]];
+  JournalArticle article = JournalArticleLocalServiceUtil.copyArticle(userId, groupId, copyArticleId, line[0], false, JournalArticleConstants.VERSION_DEFAULT);
+  article.setTitle(line[1]);
+ String content = "<?xml version=\"1.0\"?><root available-locales=\"de_CH\" default-locale=\"de_CH\"><static-content language-id=\"de_CH\"><![CDATA["+line[2]+"]]></static-content></root>";
+  article.setContent(content);
+JournalArticleLocalServiceUtil.updateJournalArticle(article);
+  out.println("added article: "+line[0]);
+
+ }catch (Exception xe) {
+  out.println(xe.getMessage());
+ }
+}
+
+// pages array:
+// 0: page url (/test)
+// 1: page name (Test page)
+// 2: navigation (0,1)
+// 3: article id 27557 oder ARTICLE1 usw
+// 4: iframe url (http://google.com)
+def pagesArray = [
+[ "/test1","Test1","1", "ARTICLE1", "http://google.com"],
+[ "/test2","Test2","1", "ARTICLE2", ""]
+]
+
+def matrixB = pagesArray as String[][] 
+
+long companyId = PortalUtil.getCompany(actionRequest).getCompanyId();
+long ownerId = PortletKeys.PREFS_OWNER_ID_DEFAULT;
+int ownerType = PortletKeys.PREFS_OWNER_TYPE_LAYOUT;
+for(String[] line: matrixB){
+try{
+layout = LayoutLocalServiceUtil.getFriendlyURLLayout(groupId, privateLayout, line[0])
+out.println("layout: "+line[0]+" exist; deleteing...");
+LayoutLocalServiceUtil.deleteLayout(layout.getPlid())
+
+} catch (Exception e) {
+e.getMessage();
+out.println("layout: "+line[0]+" does not exist");
+try{
+layout = LayoutLocalServiceUtil.addLayout(userId, groupId, privateLayout, parentPlid, line[1], line[1], "", type, hidden, line[0], serviceContext);
+
+LayoutTypePortlet layoutTypePortlet = (LayoutTypePortlet) layout.getLayoutType();
+layoutTypePortlet.setLayoutTemplateId(userId, "2_columns_ii");
+
+if(!"".equals(line[3])){
+String journalPortletId = layoutTypePortlet.addPortletId(userId,
+                                        PortletKeys.JOURNAL_CONTENT,
+                                        "column-2",
+                                        -1);
+PortletPreferences prefs = PortletPreferencesLocalServiceUtil.getPreferences(companyId,
+                                        ownerId,
+                                        ownerType,
+                                        layout.getPlid(),
+                                        journalPortletId);
+
+prefs.setValue("groupId", String.valueOf(groupId));
+prefs.setValue("articleId", line[3]);
+
+PortletPreferencesLocalServiceUtil.updatePreferences(ownerId, ownerType, layout.getPlid(), journalPortletId, prefs);
+
+}
+
+if(!"".equals(line[4])){
+String iframePortletId = layoutTypePortlet.addPortletId(userId,
+                                        PortletKeys.IFRAME,
+                                        "column-2",
+                                        -1);
+
+PortletPreferences prefs = PortletPreferencesLocalServiceUtil.getPreferences(companyId,
+                                        ownerId,
+                                        ownerType,
+                                        layout.getPlid(),
+                                        iframePortletId);
+
+prefs.setValue("src", line[4]);
+
+PortletPreferencesLocalServiceUtil.updatePreferences(ownerId, ownerType, layout.getPlid(), iframePortletId, prefs);
+
+
+}
+
+if("1".equals(line[2])){
+String navPortletId = layoutTypePortlet.addPortletId(userId,
+                                        "71",
+                                        "column-1",
+                                        -1);
+
+PortletPreferences prefs = PortletPreferencesLocalServiceUtil.getPreferences(companyId,
+                                        ownerId,
+                                        ownerType,
+                                        layout.getPlid(),
+                                        navPortletId);
+
+prefs.setValue("displayStyle", "from-level-1");
+prefs.setValue("nestedChildren", "1");
+prefs.setValue("rootLayoutLevel", "1");
+prefs.setValue("display-style", "4");
+
+
+PortletPreferencesLocalServiceUtil.updatePreferences(ownerId, ownerType, layout.getPlid(), navPortletId, prefs);
+
+
+
+}
+LayoutLocalServiceUtil.updateLayout(layout.getGroupId(),
+                                        layout.isPrivateLayout(),
+                                        layout.getLayoutId(),
+                                        layout.getTypeSettings());
+
+out.println("added page"+line[0]);
+} catch (Exception xe) {
+out.println(xe.getMessage());
+}
+
+} 
+}

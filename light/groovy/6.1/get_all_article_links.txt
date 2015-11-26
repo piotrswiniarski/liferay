@@ -1,0 +1,37 @@
+import com.liferay.portlet.journal.model.JournalArticle;
+import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+
+List<JournalArticle> articles = JournalArticleLocalServiceUtil.getArticles();
+        for(JournalArticle article: articles){
+
+				try {
+						if (JournalArticleLocalServiceUtil.isLatestVersion(article.getGroupId(), article.getArticleId(), article.getVersion())) {
+							out.println("articleId: "+article.getArticleId());
+							for(String locale: article.getAvailableLocales()){
+								out.println(locale)
+								String content = article.getContentByLocale(locale);								
+								String regex = "\\s*(?i)href\\s*=\\s*(\"([^\"]*\")|'[^']*'|([^'\">\\s]+))";
+								Pattern p = Pattern.compile(regex);
+
+								Matcher m = p.matcher(content);
+								int index = 0;
+								while (m.find(index)) {
+										out.println(m.group(1));
+										index = m.end();
+								}
+								
+
+							
+							}
+						}
+				}catch(Exception ex){
+					out.println("error for article id: " + article.getArticleId());
+					out.println(ex.getMessage());
+				}
+
+
+        }

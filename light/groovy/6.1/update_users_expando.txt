@@ -1,0 +1,28 @@
+import com.liferay.portal.util.*
+import com.liferay.portal.model.User;
+import com.liferay.portal.service.UserLocalServiceUtil;
+import java.util.*;
+
+try{
+	// Eigene Attribute -> Nutzer
+	// Email Validierung Attribute:
+	// group_email
+
+	expandoKey = "group_email"
+	expandoValue = "group@email.com";
+	long companyId = PortalUtil.getCompany(actionRequest).getCompanyId();
+	def emailArray = [
+			"user1@email.com",
+	 		"user2@email.com"
+	]
+
+	userEmails = emailArray as String[];
+	for(String email: userEmails){	
+		user = UserLocalServiceUtil.getUserByEmailAddress(companyId, email)		
+		user.getExpandoBridge().setAttribute(expandoKey, expandoValue);
+		out.println("updated: "+user.getEmailAddress()+ " expando: "+expandoKey 		
+		+"="+expandoValue );
+	}
+}catch(Exception ex){
+	out.println(ex.getMessage());
+}

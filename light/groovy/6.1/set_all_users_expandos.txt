@@ -1,0 +1,33 @@
+import com.liferay.portal.util.*
+import java.util.Arrays;
+import com.liferay.portal.model.User;
+import com.liferay.portal.service.UserLocalServiceUtil;
+
+try{
+	// Eigene Attribute -> Nutzer
+	// Email Validierung Attribute:
+	// expando_key1
+	// expando_key2
+	// expando_key3
+
+	def leerArray = [
+	["expando_key1", "value1"],
+	["expando_key2", "value2"],
+	["expando_key3", "value3"]
+	]
+	
+	def matrixA = leerArray as String[][] 
+	company = PortalUtil.getCompany(actionRequest);
+	companyId= company.getCompanyId();
+// if you have more than 10k users, skript memory limitation may force you to run this script for each 10k users (you can also increase code memory in jvm settings)
+	users = UserLocalServiceUtil.getUsers(-1, -1);
+
+	out.println("Max User count: "+UserLocalServiceUtil.getUsersCount());
+	for(User user: users){	
+		for(String[] line: matrixA){
+			user.getExpandoBridge().setAttribute(line[0], line[1])
+		}
+	}
+}catch(Exception ex){
+	out.println(ex.getMessage());
+}

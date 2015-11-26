@@ -1,0 +1,13 @@
+import com.liferay.portal.kernel.util.SystemProperties;
+
+try{
+items = SystemProperties.getProperties().keys();
+while(items.hasMoreElements()){
+key = (String)items.nextElement();
+     out.println(key+"="+SystemProperties.get(key));
+
+}
+
+}catch(Exception e){
+out.println(e.getMessage());
+}
