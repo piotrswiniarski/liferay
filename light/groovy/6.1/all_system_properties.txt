@@ -1,5 +1,5 @@
 import com.liferay.portal.kernel.util.SystemProperties;
-
+// useful when need to compare system properties between machines
 try{
 items = SystemProperties.getProperties().keys();
 while(items.hasMoreElements()){
