@@ -1,4 +1,5 @@
 import com.liferay.portal.kernel.util.PropsUtil;
+// can be useful when need to compare properties between liferay installations/nodes
 try{
 items = PropsUtil.getProperties().keys();
 while(items.hasMoreElements()){
