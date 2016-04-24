@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE service-builder PUBLIC "-//Liferay//DTD Service Builder 6.2.0//EN" "http://www.liferay.com/dtd/liferay-service-builder_6_2_0.dtd">
+<service-builder package-path="com.liferay.online">
+	<author>pisw</author>
+	<namespace>online</namespace>
+
+	<entity name="App" local-service="true" remote-service="true">
+
+		<!-- PK fields -->
+
+		<column name="onlineAppId" type="long" primary="true" id-type="increment" />
+
+		<!-- Group instance -->
+        <column name="appName" type="String"></column>
+        <column name="appBody" type="String"></column>
+
+		<column name="groupId" type="long" />
+
+		<!-- Audit fields -->
+
+		<column name="companyId" type="long" />
+		<column name="userId" type="long" />
+		<column name="userName" type="String" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
+        <column name="appDescription" type="String"></column>
+        <column name="appLanguage" type="String"></column>
+
+		<!-- Other fields -->
+
+		<column name="release" type="String" />
+		<column name="live" type="boolean" />
+
+		<!-- Order -->
+
+
+
+		<!-- Finder methods -->
+
+		<finder name="ByAppName" return-type="Collection">
+            <finder-column name="appName"></finder-column>
+		</finder>
+        <finder name="ByGroupId" return-type="Collection">
+            <finder-column name="groupId"></finder-column>
+        </finder>
+        <finder name="ByLanguage" return-type="Collection">
+            <finder-column name="appLanguage"></finder-column>
+		</finder>
+        
+	</entity>
+</service-builder>

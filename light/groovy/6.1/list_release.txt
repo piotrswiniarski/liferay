@@ -1,0 +1,6 @@
+import com.liferay.portal.model.Release;
+import com.liferay.portal.service.ReleaseLocalServiceUtil;
+releases = ReleaseLocalServiceUtil.getReleases(-1, -1);
+for(Release release: releases){
+out.println(release.getReleaseId());
+}
