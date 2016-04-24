@@ -1,0 +1,23 @@
+<div class="alert alert-dismissible alert-notification alert-success" data-dismiss="alert" role="alert">
+    <strong class="lead">Welcome:</strong>
+    <p>This app displays user list</p>
+</div>
+<div id="userIds"></div>
+<script>
+Liferay.Service(
+  '/user/get-organization-users',
+  {
+    organizationId: 20256
+  },
+  function(obj) {
+    $.each(obj, function(i, item){
+        createUserBox(item.emailAddress, item.portraitId);
+    });
+  }
+);
+
+function createUserBox(email, portraitId){
+    var imageUrl = "/image/user_male_portrait?img_id="+portraitId;
+    $("#userIds").append("<div class='alert alert-notification alert-info'><p><img src='"+imageUrl+"'></p><p>"+email+"</p></div>")
+}
+</script>
