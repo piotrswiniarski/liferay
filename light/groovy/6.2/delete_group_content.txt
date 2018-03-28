@@ -1,0 +1,18 @@
+import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil
+import com.liferay.portlet.journal.service.JournalFolderLocalServiceUtil
+import com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalServiceUtil
+import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil
+import com.liferay.portlet.documentlibrary.service.DLFolderLocalServiceUtil
+groupId=20182
+
+try{
+
+JournalArticleLocalServiceUtil.deleteArticles(groupId)
+JournalFolderLocalServiceUtil.deleteFolders(groupId)
+DDMTemplateLocalServiceUtil.deleteTemplates(groupId)
+DDMStructureLocalServiceUtil.deleteStructures(groupId)
+DLFolderLocalServiceUtil.deleteAllByGroup(groupId)
+println("deleted")
+}catch(Exception e){
+println(e.getMessage())
+}

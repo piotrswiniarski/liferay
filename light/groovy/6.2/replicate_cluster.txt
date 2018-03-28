@@ -1,0 +1,30 @@
+import com.liferay.portal.search.lucene.cluster.LuceneClusterUtil;
+import com.liferay.portal.search.lucene.LuceneHelperUtil;
+import com.liferay.portal.kernel.cluster.ClusterExecutorUtil;
+import com.liferay.portal.util.PortalUtil;
+
+out.println(LuceneHelperUtil.isLoadIndexFromClusterEnabled())
+
+company = PortalUtil.getCompany(actionRequest);
+
+
+out.println("portal.instance.protocol=" +com.liferay.portal.util.PropsValues.PORTAL_INSTANCE_PROTOCOL);
+out.println("portal.instance.http.port="+ com.liferay.portal.util.PropsValues.PORTAL_INSTANCE_HTTP_PORT);
+
+for(def node: ClusterExecutorUtil.getClusterNodes()) {
+    out.println(node)
+}
+ids = [company.getCompanyId()] as long[]
+out.println("uncomment below and choose the right node to replicate");
+
+
+for(def nodeAdd: ClusterExecutorUtil.getClusterNodeAddresses()) {
+out.println("node address: "+nodeAdd.toString())
+try{
+
+if(nodeAdd.toString().equals("wbf-u3961-44369"))
+LuceneClusterUtil.loadIndexesFromCluster(ids, nodeAdd)
+}catch(Exception e){
+e.printStackTrace(out)
+}
+}

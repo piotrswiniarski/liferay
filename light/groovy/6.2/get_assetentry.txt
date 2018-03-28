@@ -1,0 +1,5 @@
+import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
+
+entryId=2412893;
+entry=AssetEntryLocalServiceUtil.getEntry(entryId)
+println(entry)

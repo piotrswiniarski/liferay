@@ -1,0 +1,67 @@
+import com.liferay.portal.service.*;
+import com.liferay.portal.util.*
+import com.liferay.portal.NoSuchResourcePermissionException
+import com.liferay.portlet.documentlibrary.model.*;
+import com.liferay.portlet.documentlibrary.service.*;
+import com.liferay.portlet.documentlibrary.service.persistence.*;
+try{
+// --------------------------------------
+  //portletName = "orchestrator_WAR_portalportlet"
+// wrapperportlet_WAR_wrapperportlet
+ // portletName="bankletproxy_WAR_portalportlet"
+portletName="wrapperportlet_WAR_wrapperportlet"
+
+//  roleName = "role_eam"
+//  roleName = "Site Member"
+
+  actionId = "VIEW"
+
+// --------------------------------------
+
+  def start = -1 
+  def end = -1
+  companyId = PortalUtil.getDefaultCompanyId();
+  role = RoleLocalServiceUtil.getRole(companyId, roleName)
+  println(role.getName()+" -> "+portletName+" -> "+actionId)
+
+  def layouts = LayoutLocalServiceUtil.getLayouts(start, end )
+  println('layouts found='+layouts.size())
+  for(i=0;i<layouts.size();i++){
+    def layout = layouts[i];
+        url=layout.getGroup().getFriendlyURL()+layout.getFriendlyURL()
+
+//    if(layout.getTypeSettings().contains('WAR_VDN_PORTLETS')){
+lines=layout.getTypeSettings().split("\n")
+     for(line in lines){
+          if(line.startsWith("column"))
+              if(!line.split("=")[0].endsWith("customizable")){
+                    portletsString=line.split("=")[1]
+                    if(portletsString!=null){
+                         portlets=portletsString.split(",")
+                         for(portlet in portlets){
+                              if(portlet.equals(portletName) || portlet.startsWith(portletName+"_")){
+                               println(layout.getPlid()+"\t"+ portlet+"\t"+url)
+                                primKey=layout.getPlid()+"_LAYOUT_"+portlet
+                               try{
+                                rp = ResourcePermissionLocalServiceUtil.getResourcePermission(companyId, portletName, 4, primKey, role.getRoleId())
+
+                                if(rp.hasActionId(actionId)){
+                                 rp.removeResourceAction(actionId)
+                                 ResourcePermissionLocalServiceUtil.updateResourcePermission(rp)
+                                 println("removed")
+                                }
+                               }catch(Exception ex){
+
+                               }
+                              }
+                         }
+
+                     }
+               }
+      }
+
+//    }
+  }
+} catch (Exception e) {
+	println(e)
+}

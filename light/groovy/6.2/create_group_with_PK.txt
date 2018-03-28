@@ -1,0 +1,10 @@
+import com.liferay.portal.service.*;
+
+try{
+group =GroupLocalServiceUtil.createGroup(720081);
+group.setPrimaryKey(720081);
+GroupLocalServiceUtil.updateGroup(group);
+println("Created Group: "+group)
+} catch(Exception e){
+println(e.getMessage())
+}

@@ -1,0 +1,25 @@
+// 2017-08-07   highly experimental and dangerous, un-reviewed code by Piotr, added by lu14852
+// 
+
+import com.liferay.portal.kernel.scheduler.*
+import com.liferay.portal.kernel.messaging.*
+import com.liferay.portal.kernel.util.CalendarFactoryUtil
+
+try{
+   jobName="com.liferay.portlet.journal.messaging.CheckArticleMessageListener"
+   groupName=jobName
+   desc="test auf INT"
+   portletId=null
+   startTime = Calendar.getInstance();  // trigger start time
+   endTime = Calendar.getInstance();
+   //endTime.set(Calendar.MINUTE, endTime.get(Calendar.MINUTE) + 1000); // trigger end time
+   //cronText = 7200000
+   //cronText = "23 0 */2 * * ? *"
+   //cronText = new CronText(CalendarFactoryUtil.getCalendar(), CronText.HOURLY_FREQUENCY, 2)
+   cronText="0 0/5 * 1/1 * ? *"
+   trigger = TriggerFactoryUtil.buildTrigger(TriggerType.CRON, """Job-${jobName}""", groupName, startTime.getTime(), null, cronText)
+   SchedulerEngineUtil.addJob(trigger, StorageType.MEMORY_CLUSTERED, desc, DestinationNames.SCHEDULER_DISPATCH, null, groupName, portletId, 0)
+   println("added "+jobName)
+  } catch(Exception e){
+    e.printStackTrace(out)
+}

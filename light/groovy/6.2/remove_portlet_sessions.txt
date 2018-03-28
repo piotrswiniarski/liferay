@@ -1,0 +1,4 @@
+import com.liferay.portal.kernel.servlet.PortletSessionTracker;
+s = new PortletSessionTracker();
+s._sessions.clear()
+println("removed")

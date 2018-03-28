@@ -1,0 +1,48 @@
+import com.mimacom.elasticsearch.synonyms.util.SynonymsUtil
+import com.liferay.portal.util.PortalUtil;
+import com.liferay.portal.kernel.log.LogFactoryUtil
+import com.liferay.portal.service.PortletLocalServiceUtil;
+import com.liferay.portal.util.*;
+import com.liferay.portal.kernel.search.*;
+import com.liferay.portal.kernel.dao.shard.*;
+
+companyId=PortalUtil.getDefaultCompanyId();
+
+try{
+	logger=LogFactoryUtil.getLog("com.mimacom.groovy.script.Synonyms")
+	logger.info("start groovy synonyms script")
+	SynonymsUtil.publishSynonyms(companyId)
+	logger.info("finished groovy synonyms script")
+
+}catch(Exception e){
+	logger.error(e.getMessage())
+	out.println(e.getMessage())
+	e.printStackTrace()
+}
+
+jalogger=LogFactoryUtil.getLog("com.mimacom.groovy.script.WebContent")
+jalogger.info("start groovy web-content reindex script")
+companyIdString = ""+companyId;
+String[] companyIds = [companyIdString]
+portletId="15"
+portlet=PortletLocalServiceUtil.getPortletById(companyId, portletId)
+indexes = portlet.getIndexerInstances();
+
+for(index in indexes){
+	searchEngineId = index.getSearchEngineId()
+	SearchEngineUtil.deletePortletDocuments(searchEngineId, companyId, portletId, true);
+}
+println("Index deleted for portlet: "+portletId)
+
+for(index in indexes){
+
+	ShardUtil.pushCompanyService(companyId);
+	try {
+		index.reindex(companyIds);
+	} catch (Exception e) {
+		println(e.getMessage())
+	} finally {
+		ShardUtil.popCompanyService();
+	}
+}
+jalogger.info("finished groovy web-content reindex script")

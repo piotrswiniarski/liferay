@@ -1,0 +1,15 @@
+import com.mimacom.elasticsearch.util.ElasticsearchUtil
+import com.mimacom.elasticsearch.connection.ElasticsearchConnectionManager
+import com.liferay.portal.util.*;
+
+try{
+long companyId=PortalUtil.getCompany(actionRequest).getCompanyId()
+println(companyId)
+ElasticsearchConnectionManager cm = ElasticsearchUtil.getConnectionManager("elasticsearch-web")
+indexName=ElasticsearchUtil.getIndexName(companyId)
+println(cm.checkIndex(indexName))
+ElasticsearchUtil.closeIndex(cm.getClient(), indexName)
+println("stopeed "+indexName)
+}catch(Exception e){
+println(e.getMessage())
+}

@@ -1,0 +1,77 @@
+import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.model.ResourcePermission;
+import com.liferay.portal.service.ResourcePermissionLocalServiceUtil;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class VerifyDuplicateResourcePermission extends UpgradeProcess{
+
+	public void verifyDuplicateResourcePermission () { 
+
+		try {
+			runSQL("drop index IX_8D83D0CE on ResourcePermission");
+		}	
+		catch (Exception e) {
+		}
+
+		String sql =
+			"create unique index IX_8D83D0CE on ResourcePermission (companyId, " +
+			"name, scope, primKey, roleId)";
+
+		try {
+			runSQL(sql);
+		}
+		catch (Exception e) {
+			removeDuplicateResourcePermission();
+			runSQL(sql);
+		}
+	}
+
+	public void removeDuplicateResourcePermission() throws Exception {
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		String pkColumnName = "resourcePermissionId";
+
+		StringBuilder sb = new StringBuilder(13);
+
+		sb.append("select distinct alpha.");
+		sb.append(pkColumnName);
+		sb.append(" from ResourcePermission alpha, ");
+		sb.append("ResourcePermission beta where ");
+		sb.append("alpha.companyId = beta.companyId AND ");
+		sb.append("alpha.name = beta.name AND ");
+		sb.append("alpha.scope = beta.scope AND ");
+		sb.append("alpha.primKey = beta.primKey AND ");
+		sb.append("alpha.roleId = beta.roleId AND ");
+		sb.append("alpha.");
+		sb.append(pkColumnName);
+		sb.append(" > beta.");
+		sb.append(pkColumnName);
+
+		try {
+			con = DataAccess.getUpgradeOptimizedConnection();
+
+			ps = con.prepareStatement(sb.toString());
+
+			rs = ps.executeQuery();
+
+			while (rs.next()) {
+				long primKey = rs.getLong(pkColumnName);
+
+				ResourcePermissionLocalServiceUtil.deleteResourcePermission(
+				primKey);
+			}
+		}
+		finally {
+			DataAccess.cleanUp(con, ps, rs);
+		}
+	}
+}
+
+(new VerifyDuplicateResourcePermission().verifyDuplicateResourcePermission())

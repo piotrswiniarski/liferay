@@ -1,0 +1,27 @@
+import com.liferay.portal.service.*;
+import com.liferay.portal.util.*;
+
+try{
+
+long companyId=PortalUtil.getCompany(actionRequest).getCompanyId()
+
+roles=RoleLocalServiceUtil.getRoles(companyId)
+
+for(role in roles){
+if("Owner".equals(role.getName())){
+
+}else{
+println(role.getName())
+permissions=ResourcePermissionLocalServiceUtil.getRoleResourcePermissions(role.getRoleId())
+for(permission in permissions){
+println("\t"+permission)
+}
+
+}
+
+
+}
+
+}catch(Exception e){
+println(e.getMessage())
+}

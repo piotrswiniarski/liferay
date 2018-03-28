@@ -1,0 +1,17 @@
+import com.liferay.portal.service.*;
+import com.liferay.portal.util.*;
+//userId=958001
+userId=108290
+users = UserLocalServiceUtil.getUsers(100,1000)
+for(user in users)
+{
+try{
+
+user.getGroupIds()
+
+}catch(Exception e){
+println("wrong user")
+println(user)
+//e.printStackTrace(out)
+}
+}

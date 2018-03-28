@@ -1,0 +1,67 @@
+import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil
+import com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalServiceUtil
+import com.liferay.portal.util.*;
+import com.liferay.portal.service.ClassNameLocalServiceUtil
+import com.liferay.portal.service.GroupLocalServiceUtil
+import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil
+import com.liferay.portlet.journal.model.JournalArticle
+import com.liferay.portal.kernel.xml.SAXReaderUtil
+
+def trace(message) {
+	outputFile << "${message}\n"
+}
+
+try{
+
+searchable="true"
+
+
+final def SCRIPT_ID = "log_suchbar_inhalt"
+outputFile = new File("""${System.getProperty("liferay.home")}/out-${SCRIPT_ID}.txt""")
+outputFile.getParentFile().mkdirs()
+	groupName = "LUKB"
+	long companyId=PortalUtil.getCompany(actionRequest).getCompanyId()
+	groupId = GroupLocalServiceUtil.getGroup(companyId, groupName).getGroupId()
+	long classNameId = ClassNameLocalServiceUtil.getClassNameId(JournalArticle.class.getName())
+	def parents = []
+	structures = DDMStructureLocalServiceUtil.getClassStructures(companyId, classNameId, -1, -1)
+	articleId="1149714"
+	elementString = "dynamic-element"
+	subElementString = "dynamic-content"
+	
+							jas=JournalArticleLocalServiceUtil.getArticles(groupId, articleId)
+							for(ja in jas){
+								if(JournalArticleLocalServiceUtil.isLatestVersion(groupId, ja.getArticleId(), ja.getVersion())){
+									if(ja.getContent().contains("dynamic-element name=\"searchable\" type=\"boolean\"")){
+										trace(ja.getArticleId()+" searchable exist! no update");
+										break;
+									}else{
+										document = SAXReaderUtil.read(ja.getContent());
+										newElement=SAXReaderUtil.createElement(elementString);
+										newElement.addAttribute("name", "searchable");
+										newElement.addAttribute("type", "boolean");
+										newElement.addAttribute("index", "0");
+										newElement.addAttribute("index-type", "keyword");
+										newElement.addAttribute("instance-id", "bbbb");
+										newSubElement=SAXReaderUtil.createElement(subElementString);
+										newSubElement.addAttribute("language-id", "de_DE");
+										newSubElement.addCDATA(searchable);
+										newElement.add(newSubElement);
+										rootElement = document.getRootElement();
+										rootElement.add(newElement)
+										trace(ja.getArticleId()+" old");
+										trace(ja.getContent())
+										trace("------------------------");
+										content=document.getDocument().asXML()
+										trace(content)
+										JournalArticleLocalServiceUtil.updateContent(ja.getGroupId(), ja.getArticleId(), ja.getVersion(), content);
+										println("updated "+ja.getArticleId());
+									}
+								}
+							}
+						
+					
+
+}catch(Exception e){
+	println(e.getMessage())
+}

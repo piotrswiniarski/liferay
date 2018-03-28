@@ -1,0 +1,12 @@
+import com.liferay.portal.service.UserLocalServiceUtil
+import com.liferay.portal.util.*;
+openId="1251424"
+
+try{
+companyId=PortalUtil.getCompany(actionRequest).getCompanyId()
+
+user=UserLocalServiceUtil.fetchUserByOpenId(companyId, openId)
+println(user)
+}catch(Exception e){
+println(e.getMessage())
+}

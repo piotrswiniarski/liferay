@@ -1,0 +1,12 @@
+import java.text.*
+import com.liferay.portal.util.*;
+import com.liferay.portal.service.*
+SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+long companyId=PortalUtil.getCompany(actionRequest).getCompanyId()
+for(i=0;i<100;i++){
+Calendar cal=Calendar.getInstance();
+user=UserLocalServiceUtil.getUser(1170012)
+
+println(sdf.format(cal.getTime())+" roles: "+user.getRoleIds().length+" groups: "+user.getGroupIds().length)
+
+}

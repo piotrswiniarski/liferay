@@ -1,0 +1,15 @@
+import com.mimacom.elasticsearch.synonyms.util.SynonymsUtil
+import com.liferay.portal.util.PortalUtil;
+import com.liferay.portal.kernel.log.LogFactoryUtil
+try{
+logger=LogFactoryUtil.getLog("com.mimacom.groovy.script.Synonyms")
+companyId=PortalUtil.getDefaultCompanyId();
+logger.info("start groovy script")
+SynonymsUtil.publishSynonyms(companyId)
+logger.info("finished groovy script")
+
+}catch(Exception e){
+logger.error(e.getMessage())
+out.println(e.getMessage())
+e.printStackTrace()
+}

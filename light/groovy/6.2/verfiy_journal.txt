@@ -1,0 +1,9 @@
+import com.liferay.portal.verify.*
+try{
+println("start")
+vp = new VerifyJournal()
+vp.verify(new VerifyJournal())
+println("end")
+}catch(Exception e){
+println(e.getMessage())
+}

@@ -1,0 +1,55 @@
+import javax.servlet.http.*
+import com.liferay.portal.kernel.search.*;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.service.*;
+import com.liferay.portal.util.*;
+import com.liferay.portal.model.ResourceConstants;
+
+roleParams="pay_only_xfer,std_custr_ch,site member"
+groupId="10620"
+roles= roleParams.split(",")
+
+try{
+long companyId=PortalUtil.getCompany(actionRequest).getCompanyId()
+def roleIds= []
+header = "articleId"+"\t"+"title"
+for(role in roles){
+header+="\t"+role
+roleIds << RoleLocalServiceUtil.getRole(companyId, role).getRoleId()
+}
+println(header)
+        HttpServletRequest httpServletRequest = PortalUtil.getOriginalServletRequest(PortalUtil.getHttpServletRequest(actionRequest));
+        SearchContext searchContext = SearchContextFactory.getInstance(httpServletRequest);
+        BooleanQuery fullQuery = BooleanQueryFactoryUtil.create(searchContext);
+        BooleanQuery searchQuery = BooleanQueryFactoryUtil.create(searchContext);
+
+searchQuery.addRequiredTerm("entryClassName", "com.liferay.portlet.journal.model.JournalArticle");
+searchQuery.addRequiredTerm("head", true);
+fullQuery.add(searchQuery, BooleanClauseOccur.MUST);
+searchContext.setStart(QueryUtil.ALL_POS);
+searchContext.setEnd(QueryUtil.ALL_POS);
+searchContext.setAttribute("paginationType", "none");
+Hits hits = SearchEngineUtil.search(searchContext, fullQuery);
+List<Document> docs = hits.toList();
+
+actionId="VIEW"
+for(doc in docs){
+pk=doc.get("entryClassPK")
+if(groupId!=doc.get("groupId"))
+continue;
+
+output=""
+for(roleId in roleIds){
+hasPermission=ResourcePermissionLocalServiceUtil.hasResourcePermission(companyId, doc.get("entryClassName"), ResourceConstants.SCOPE_INDIVIDUAL, pk, roleId, actionId)
+if(hasPermission)
+output+="\t"+"1"
+else
+output+="\t"+"0"
+
+
+}
+out.println(doc.get("articleId")+"\t"+doc.get("localized_title_de_CH")+output)
+}
+}catch(Exception e){
+out.println(e.getMessage())
+}

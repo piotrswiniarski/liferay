@@ -1,0 +1,11 @@
+import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
+entryId=406866
+visible=false
+try{
+entry=AssetEntryLocalServiceUtil.getEntry(entryId)
+out.println(entry)
+entry.setVisible(visible)
+AssetEntryLocalServiceUtil.updateAssetEntry(entry)
+}catch(Exception e){
+ out.println(e.getMessage())
+}

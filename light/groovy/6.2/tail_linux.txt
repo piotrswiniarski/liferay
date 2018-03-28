@@ -1,0 +1,6 @@
+final def CMD = 'tail -30 /opt/jboss/application/liferay/logs/liferay.2016-08-23.log';
+
+// Implementation
+
+def exec = { cmd -> def p = cmd.execute(); out.leftShift(new SequenceInputStream(p.getErr(), p.getIn())) }
+exec(CMD)

@@ -1,0 +1,49 @@
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.service.*;
+import com.liferay.portal.NoSuchGroupException
+
+Connection con = null;
+Statement st = null;
+println("Layout Validierung")
+try {
+	con = DataAccess.getUpgradeOptimizedConnection();
+	st = con.createStatement();
+	ResultSet rs = st.executeQuery("select PLID from LAYOUT");
+        while(rs.next()){		
+		plid = rs.getInt(1)
+		println(plid);	
+		try{
+			LayoutLocalServiceUtil.fetchLayout(plid)
+
+		}catch(Exception nge){
+			println("error for: "+plid)
+		//	LayoutLocalServiceUtil.deleteLayout(plid)
+			println("deleted: "+plid)
+
+		}
+	}
+}finally {
+	DataAccess.cleanUp(con, st);
+}
+
+println("User Validierung")
+try {
+	con = DataAccess.getUpgradeOptimizedConnection();
+	st = con.createStatement();
+	ResultSet rs = st.executeQuery("select distinct(GROUPID) from USERS_GROUPS");
+	while(rs.next()){		
+		groupId = rs.getInt(1)
+		println(groupId)
+		try{
+			GroupLocalServiceUtil.getGroup(groupId)
+		}catch(Exception nge){
+			println("error for: "+groupId )
+		}
+	}
+}finally {
+	DataAccess.cleanUp(con, st);
+}

@@ -1,0 +1,10 @@
+import  com.liferay.portal.kernel.search.IndexerRegistryUtil
+
+try{
+indexer = IndexerRegistryUtil.getIndexer("com.liferay.portlet.journal.model.JournalArticle")
+println(indexer.isPermissionAware())
+println(indexer.isFilterSearch())
+println(indexer.getClass().getName())
+}catch(Exception e){
+println(e.getMessage())
+}

@@ -1,0 +1,16 @@
+import com.liferay.portal.kernel.cache.SingleVMPoolUtil;
+import com.liferay.portal.kernel.cache.MultiVMPoolUtil;
+
+// Uncomment below to clean cache (ehcache)
+//MultiVMPoolUtil.clear();
+def list = []
+
+list << "com.liferay.portal.kernel.dao.orm.FinderCache.com.liferay.portal.model.impl.VirtualHostImpl"
+
+for(element in list){
+keys =MultiVMPoolUtil.getCache(element).getKeys();
+out.println("-"+keys.size()+"\t"+element)
+for(key in keys){
+println(key+" = "+MultiVMPoolUtil.getCache(element).get(key))
+}
+}

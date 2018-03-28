@@ -1,0 +1,44 @@
+import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil
+import com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalServiceUtil
+import com.liferay.portal.util.*;
+import com.liferay.portal.service.ClassNameLocalServiceUtil
+import com.liferay.portal.service.GroupLocalServiceUtil
+import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil
+import com.liferay.portlet.journal.model.JournalArticle
+
+def trace(message) {
+	outputFile << "${message}\n"
+}
+
+
+try{
+
+
+	groupName = "LUKB"
+	long companyId=PortalUtil.getCompany(actionRequest).getCompanyId()
+	groupId = GroupLocalServiceUtil.getGroup(companyId, groupName).getGroupId()
+	long classNameId = ClassNameLocalServiceUtil.getClassNameId(JournalArticle.class.getName())
+	def parents = []
+	structures = DDMStructureLocalServiceUtil.getClassStructures(companyId, classNameId, -1, -1)
+
+	
+				articles = JournalArticleLocalServiceUtil.getArticles(groupId) 
+				for(article in articles){
+try{
+					if(JournalArticleLocalServiceUtil.isLatestVersion(groupId, article.getArticleId(), article.getVersion())){
+							searchable=false;
+								if(article.getContent().contains("dynamic-element name=\"searchable\" type=\"boolean\"") ){
+									searchable=true
+								}
+							println("\t"+article.getArticleId()+" "+article.isIndexable())
+					}
+}catch(Exception ex){
+println(ex.getMessage())
+}
+				}
+
+
+
+}catch(Exception e){
+	println(e.getMessage())
+}

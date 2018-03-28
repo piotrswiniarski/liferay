@@ -1,0 +1,12 @@
+import com.liferay.portal.service.*;
+
+
+groupId=720081
+layouts=LayoutLocalServiceUtil.getLayouts(-1, -1)
+for(layout in layouts){
+ if(layout.getGroupId()==groupId){
+  plid=layout.getPlid()
+  LayoutLocalServiceUtil.deleteLayout(plid)
+  println("Deleted layout with plid: "+plid)
+ }
+}

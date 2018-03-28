@@ -1,0 +1,30 @@
+import com.liferay.portal.service.PortletLocalServiceUtil;
+import com.liferay.portal.util.*;
+import com.liferay.portal.kernel.search.*;
+import com.liferay.portal.kernel.dao.shard.*;
+
+companyId = PortalUtil.getDefaultCompanyId();
+companyIdString = ""+companyId;
+String[] companyIds = [companyIdString]
+portletId="15"
+portlet=PortletLocalServiceUtil.getPortletById(companyId, portletId)
+indexes = portlet.getIndexerInstances();
+
+for(index in indexes){
+	searchEngineId = index.getSearchEngineId()
+	SearchEngineUtil.deletePortletDocuments(searchEngineId, companyId, portletId, true);
+}
+println("Index deleted for portlet: "+portletId)
+
+for(index in indexes){
+
+ShardUtil.pushCompanyService(companyId);
+	try {
+		index.reindex(companyIds);
+	} catch (Exception e) {
+		println(e.getMessage())
+	} finally {
+		ShardUtil.popCompanyService();
+	}
+}
+println("Indexing finished for portlet: "+portletId)

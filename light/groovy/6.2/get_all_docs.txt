@@ -1,0 +1,12 @@
+import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil
+
+try{
+docs = DLFileEntryLocalServiceUtil.getDLFileEntries(-1,-1)
+println(docs.size());
+for(doc in docs){
+println(doc.getTitle() +"\t"+doc.getMimeType()+"\t"+doc.getSize())
+}
+
+}catch(Exception e) {
+println(e.getMessage())
+}

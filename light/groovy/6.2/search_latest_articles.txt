@@ -1,0 +1,26 @@
+import javax.servlet.http.*
+import com.liferay.portal.util.PortalUtil;
+import com.liferay.portal.kernel.search.*;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
+
+try{
+        HttpServletRequest httpServletRequest = PortalUtil.getOriginalServletRequest(PortalUtil.getHttpServletRequest(actionRequest));
+        SearchContext searchContext = SearchContextFactory.getInstance(httpServletRequest);
+        BooleanQuery fullQuery = BooleanQueryFactoryUtil.create(searchContext);
+        BooleanQuery searchQuery = BooleanQueryFactoryUtil.create(searchContext);
+
+searchQuery.addRequiredTerm("entryClassName", "com.liferay.portlet.journal.model.JournalArticle");
+searchQuery.addRequiredTerm("head", true);
+fullQuery.add(searchQuery, BooleanClauseOccur.MUST);
+searchContext.setStart(QueryUtil.ALL_POS);
+searchContext.setEnd(QueryUtil.ALL_POS);
+searchContext.setAttribute("paginationType", "none");
+Hits hits = SearchEngineUtil.search(searchContext, fullQuery);
+List<Document> docs = hits.toList();
+out.println("count: "+docs.size())
+for(doc in docs){
+out.println(doc)
+}
+}catch(Exception e){
+out.println(e.getMessage())
+}

@@ -1,0 +1,90 @@
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.service.*;
+import com.liferay.portal.NoSuchGroupException
+import com.liferay.portal.util.*;
+import com.liferay.portal.model.Group;
+ companyId=PortalUtil.getCompany(actionRequest).getCompanyId();
+ className=Group.class.getName();
+
+ Connection con = null;
+ Statement st = null;
+ println("Layout Validierung")
+ def groupIds = []
+ def plids = [:]
+ try {
+     con = DataAccess.getUpgradeOptimizedConnection();
+     st = con.createStatement();
+     ResultSet rs = st.executeQuery("select PLID, GROUPID from LAYOUT");
+         while(rs.next()){
+         plid = rs.getInt(1)
+         try{
+             LayoutLocalServiceUtil.fetchLayout(plid)
+
+         }catch(Exception nge){
+             groupId=rs.getInt(2);
+             groupIds.push(groupId)
+             plids.put(plid, groupId)
+             println("error for: "+plid+ " groupId: "+groupId)
+         }
+     }
+ }finally {
+     DataAccess.cleanUp(con, st);
+ }
+ groupIds.unique().each { groupId ->
+     try{
+             group = GroupLocalServiceUtil.createGroup(groupId);
+             group.setPrimaryKey(groupId);
+             group.setCompanyId(companyId);
+             group.setClassName(className);
+             GroupLocalServiceUtil.updateGroup(group);
+             println("Created Group: "+group)
+
+             plids.keySet().each {
+                 plidGroup=plids.get(it);
+                 if(groupId==plidGroup){
+                     println("deleted layout: "+it+" group: "+plidGroup)
+                     LayoutLocalServiceUtil.deleteLayout(it)
+                 }
+             }
+
+             group=GroupLocalServiceUtil.getGroup(groupId)
+             GroupServiceUtil.deleteGroup(groupId)
+             println("Deleted Group: "+group)
+
+     }catch(Exception e){
+         e.printStackTrace(out)
+     }
+ }
+
+ println("User Validierung")
+ try {
+     con = DataAccess.getUpgradeOptimizedConnection();
+     st = con.createStatement();
+     ResultSet rs = st.executeQuery("select distinct(GROUPID) from USERS_GROUPS");
+     while(rs.next()){
+         groupId = rs.getInt(1)
+
+         try{
+             GroupLocalServiceUtil.getGroup(groupId)
+         }catch(Exception nge){
+             println("error for: "+groupId )
+
+             group =GroupLocalServiceUtil.createGroup(groupId);
+             group.setPrimaryKey(groupId);
+             group.setCompanyId(companyId);
+             group.setClassName(className);
+             GroupLocalServiceUtil.updateGroup(group);
+             println("Created Group: "+group)
+
+             group=GroupLocalServiceUtil.getGroup(groupId)
+             GroupServiceUtil.deleteGroup(groupId)
+             println("Deleted Group: "+group)
+         }
+     }
+ }finally {
+     DataAccess.cleanUp(con, st);
+ }

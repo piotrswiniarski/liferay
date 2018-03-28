@@ -1,0 +1,30 @@
+import com.liferay.portal.kernel.search.FacetedSearcher;
+import com.liferay.portal.kernel.search.SearchContext;
+import com.liferay.portal.kernel.search.SearchContextFactory;
+import com.liferay.portal.kernel.search.Indexer;
+import com.liferay.portal.kernel.search.Hits;
+import com.liferay.portal.util.PortalUtil;
+import com.liferay.portal.kernel.util.PropsUtil;
+
+keywords="orange";
+try{
+ SearchContext searchContext = new SearchContext();
+ companyId=PortalUtil.getDefaultCompanyId();
+ searchContext.setCompanyId(companyId);
+ searchContext.setStart(0);
+ searchContext.setEnd(1000);
+ searchContext.setEntryClassNames(PropsUtil.getArray("search.assetEntry.classNames"));
+ searchContext.setKeywords(keywords);
+ Indexer indexer = FacetedSearcher.getInstance();
+ Hits hits = indexer.search(searchContext);
+ scores=hits.getScores();
+ out.println(hits.getDocs().length);
+ i=0
+ for(hit in hits.getDocs()){
+  score=scores[i]
+  i++
+  out.println(hit.get("entryClassPK")+"\t score:"+score+"\t p:"+hit.get("priority")+"\t"+hit.get("entryClassName")+"\t\t"+hit.get("title"))
+ }
+}catch(Exception e){
+ out.println(e.getMessage())
+}

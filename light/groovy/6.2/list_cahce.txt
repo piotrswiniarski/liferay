@@ -1,0 +1,47 @@
+import com.liferay.portal.kernel.cache.SingleVMPoolUtil;
+import com.liferay.portal.kernel.cache.MultiVMPoolUtil;
+
+
+//MultiVMPoolUtil.clear();
+//MultiVMPoolUtil.clear();
+def myList = ["test"]
+out.println(MultiVMPoolUtil.getCache("com.liferay.portal.kernel.dao.orm.EntityCache.com.liferay.portal.model.impl.AccountImpl").getKeys())
+
+//com.liferay.portal.kernel.dao.orm.EntityCache
+//com.liferay.portal.kernel.dao.orm.EntityCache.com.liferay.portal.model.impl.AccountImpl
+//com.liferay.portal.kernel.dao.orm.EntityCache.com.liferay.portal.model.impl.ContactImpl
+//com.liferay.portal.kernel.dao.orm.EntityCache.com.liferay.portal.model.impl.GroupImpl
+//com.liferay.portal.kernel.dao.orm.EntityCache.com.liferay.portal.model.impl.PortletPreferencesImpl
+//com.liferay.portal.kernel.dao.orm.EntityCache.com.liferay.portal.model.impl.ResourceActionImpl
+//com.liferay.portal.kernel.dao.orm.EntityCache.com.liferay.portal.model.impl.ResourcePermissionImpl
+//com.liferay.portal.kernel.dao.orm.EntityCache.com.liferay.portal.model.impl.UserImpl
+//com.liferay.portal.kernel.dao.orm.EntityCache.com.liferay.portlet.expando.model.impl.ExpandoColumnImpl
+//com.liferay.portal.kernel.dao.orm.EntityCache.com.liferay.portlet.expando.model.impl.ExpandoTableImpl
+//com.liferay.portal.kernel.dao.orm.EntityCache.com.liferay.portlet.expando.model.impl.ExpandoValueImpl
+//com.liferay.portal.kernel.dao.orm.FinderCache
+//com.liferay.portal.kernel.dao.orm.FinderCache.com.liferay.portal.model.impl.GroupImpl
+//com.liferay.portal.kernel.dao.orm.FinderCache.com.liferay.portal.model.impl.GroupImpl.List
+//com.liferay.portal.kernel.dao.orm.FinderCache.com.liferay.portal.model.impl.LayoutImpl
+//com.liferay.portal.kernel.dao.orm.FinderCache.com.liferay.portal.model.impl.LayoutImpl.List
+//com.liferay.portal.kernel.dao.orm.FinderCache.com.liferay.portal.model.impl.PortletPreferencesImpl
+//com.liferay.portal.kernel.dao.orm.FinderCache.com.liferay.portal.model.impl.PortletPreferencesImpl.List
+//com.liferay.portal.kernel.dao.orm.FinderCache.com.liferay.portal.model.impl.ResourceActionImpl
+//com.liferay.portal.kernel.dao.orm.FinderCache.com.liferay.portal.model.impl.ResourceActionImpl.List
+//com.liferay.portal.kernel.dao.orm.FinderCache.com.liferay.portal.model.impl.ResourcePermissionImpl
+//com.liferay.portal.kernel.dao.orm.FinderCache.com.liferay.portal.model.impl.ResourcePermissionImpl.List
+//com.liferay.portal.kernel.dao.orm.FinderCache.com.liferay.portlet.expando.model.impl.ExpandoColumnImpl
+//com.liferay.portal.kernel.dao.orm.FinderCache.com.liferay.portlet.expando.model.impl.ExpandoColumnImpl.List
+//com.liferay.portal.kernel.dao.orm.FinderCache.com.liferay.portlet.expando.model.impl.ExpandoValueImpl
+//com.liferay.portal.kernel.dao.orm.FinderCache.com.liferay.portlet.expando.model.impl.ExpandoValueImpl.List
+//com.liferay.portal.kernel.dao.orm.FinderCache.Users_Orgs
+//com.liferay.portal.kernel.dao.orm.FinderCache.Users_Roles
+//com.liferay.portal.security.permission.PermissionCacheUtil_PERMISSION
+//com.liferay.portal.security.permission.PermissionCacheUtil_PERMISSION_CHECKER_BAG
+//com.liferay.portal.security.permission.PermissionCacheUtil_RESOURCE_BLOCK_IDS_BAG
+//com.liferay.portal.service.impl.PortletLocalServiceImpl
+//com.liferay.portal.service.impl.PortletPreferencesLocalUtil
+//com.liferay.portal.servlet.filters.cache.CacheUtil
+//com.liferay.portal.webserver.WebServerServletToken
+//com.liferay.portlet.journalcontent.util.JournalContent
+//com.liferay.portlet.social.service.impl.SocialActivitySettingLocalServiceImpl
+

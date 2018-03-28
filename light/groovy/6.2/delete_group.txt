@@ -1,0 +1,18 @@
+import com.liferay.portal.service.*;
+import com.liferay.portal.util.*;
+groupId=720081
+long companyId=PortalUtil.getCompany(actionRequest).getCompanyId()
+println(companyId)
+try{
+group=GroupLocalServiceUtil.getGroup(groupId)
+println(group)
+//group.setComapnyId(companyId)
+//group.setClassPK(720081)
+//group.setName("720081")
+//group.setClassNameId(20001);
+//GroupLocalServiceUtil.updateGroup(group)
+GroupServiceUtil.deleteGroup(groupId)
+//println(GroupLocalServiceUtil.getGroup(groupId))
+}catch(Exception e){
+e.printStackTrace(out)
+}

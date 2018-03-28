@@ -1,0 +1,65 @@
+import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil
+import com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalServiceUtil
+import com.liferay.portal.util.*;
+import com.liferay.portal.service.ClassNameLocalServiceUtil
+import com.liferay.portal.service.GroupLocalServiceUtil
+import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil
+import com.liferay.portlet.journal.model.JournalArticle
+
+def trace(message) {
+	outputFile << "${message}\n"
+}
+
+
+try{
+
+final def SCRIPT_ID = "log_suchbar_inhalt"
+outputFile = new File("""${System.getProperty("liferay.home")}/out-${SCRIPT_ID}.txt""")
+outputFile.getParentFile().mkdirs()
+
+	groupName = "LUKB"
+	long companyId=PortalUtil.getCompany(actionRequest).getCompanyId()
+	groupId = GroupLocalServiceUtil.getGroup(companyId, groupName).getGroupId()
+	long classNameId = ClassNameLocalServiceUtil.getClassNameId(JournalArticle.class.getName())
+	def parents = []
+	structures = DDMStructureLocalServiceUtil.getClassStructures(companyId, classNameId, -1, -1)
+
+	for(structure in structures){
+		parentId = structure.getParentStructureId()
+		if(!parents.contains(parentId) && parentId!=0){
+			parents << parentId
+		}
+	}
+	
+	for(structure in structures){
+		structureId=structure.getStructureId()
+        if(parents.contains(structure.getParentStructureId())){ 
+			if(groupId==structure.getGroupId()){
+				articles = JournalArticleLocalServiceUtil.getStructureArticles(structure.getGroupId(), structure.getStructureKey())
+				println("STRUCTURE: "+structureId+"\t"+structure.getStructureKey()+"\t"+structure.getParentStructureId() +"\t"+structure.getName())
+				for(article in articles){
+					if(JournalArticleLocalServiceUtil.isLatestVersion(groupId, article.getArticleId(), article.getVersion())){
+						if(!article.getContent().contains("searchable")){
+							searchable=false;
+							jas=JournalArticleLocalServiceUtil.getArticles(groupId, article.getArticleId())
+							for(ja in jas){
+								if(ja.getContent().contains("dynamic-element name=\"searchable\" type=\"boolean\"") && ja.getContent().contains("true")){
+									trace(article.getAticleId()+" true");
+									searchable=true
+									break;
+								}
+							}
+							if(!searchable){
+								trace(article.getArticleId()+" false")
+							}
+							println("\t"+article.getArticleId()+" "+searchable)
+						}
+					}
+				}
+			}
+
+        }
+	}
+}catch(Exception e){
+	println(e.getMessage())
+}

@@ -1,0 +1,11 @@
+import com.liferay.portal.service.*;
+try{
+portlets=PortletLocalServiceUtil.getPortlets()
+
+for(portlet in portlets){
+println(portlet.getPortletName()+"\t"+portlet.getDisplayName())
+}
+
+}catch(Exception e){
+println(e.getMessage())
+}

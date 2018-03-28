@@ -1,0 +1,7 @@
+import com.liferay.portal.security.permission.PermissionCacheUtil
+try{
+PermissionCacheUtil.clearCache()
+out.println("ok")
+}catch(Exception e){
+out.println(e.getMessage())
+}

@@ -1,0 +1,9 @@
+import com.liferay.portal.kernel.scheduler.*
+
+groupName="com.liferay.portlet.journal.messaging.CheckArticleMessageListener"
+try{
+SchedulerEngineHelperUtil.delete(groupName, StorageType.MEMORY_CLUSTERED)
+println("deleted "+groupName)
+}catch(Exception e){
+println(e.getMessage())
+}

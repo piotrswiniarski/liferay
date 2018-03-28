@@ -1,0 +1,59 @@
+import javax.servlet.http.*
+import com.liferay.portal.kernel.search.*;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.service.*;
+import com.liferay.portal.util.*;
+import com.liferay.portal.model.ResourceConstants;
+import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil;
+
+rolesToDelete="std_custr_ll1_ll2,site member"
+rolesToAdd="role_ebanking_user,user,guest"
+
+groupId=10620
+rolesTD= rolesToDelete.split(",")
+rolesTA= rolesToAdd.split(",")
+scope = ResourceConstants.SCOPE_INDIVIDUAL
+try{
+className="com.liferay.portlet.journal.model.JournalArticle"
+def articleIds= []
+articleIds << "2690828"
+//articleIds << "18439"
+
+long companyId=PortalUtil.getCompany(actionRequest).getCompanyId()
+
+header = "articleId"+"\t"+"title"
+
+
+println(header)
+
+actionId="VIEW"
+def actionIds=actionId.split(",")
+for(articleId in articleIds){
+	article = JournalArticleLocalServiceUtil.getArticle(groupId, articleId);
+	pk=""+article.getResourcePrimKey()
+	if(groupId!=article.getGroupId())
+	continue;
+
+	output=""
+	for(role in rolesTD){
+		roleId=RoleLocalServiceUtil.getRole(companyId, role).getRoleId()
+		hasPermission=ResourcePermissionLocalServiceUtil.hasResourcePermission(companyId, className, scope, pk, roleId, actionId)
+		if(hasPermission){
+			ResourcePermissionLocalServiceUtil.removeResourcePermission(companyId, className, scope, pk, roleId, actionId)
+			println("Removed view from "+articleId+" (role="+roleId+")")
+		}
+	}
+
+	for(role in rolesTA){
+		roleId = RoleLocalServiceUtil.getRole(companyId, role).getRoleId()		
+		hasPermission=ResourcePermissionLocalServiceUtil.hasResourcePermission(companyId, className, scope, pk, roleId, actionId)
+		if(!hasPermission){
+			ResourcePermissionLocalServiceUtil.setResourcePermissions(companyId, className, scope, pk, roleId, actionIds)
+			println("Added view to "+articleId+" (role="+roleId+")")
+		}
+	}
+
+}
+}catch(Exception e){
+out.println(e.getMessage())
+}

@@ -1,0 +1,32 @@
+import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil
+import com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalServiceUtil
+import com.liferay.portal.util.*;
+import com.liferay.portal.service.ClassNameLocalServiceUtil
+import com.liferay.portal.service.GroupLocalServiceUtil
+import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil
+import com.liferay.portlet.journal.model.JournalArticle
+
+
+try{
+
+	groupName = "lukbs"
+	long companyId=PortalUtil.getCompany(actionRequest).getCompanyId()
+	groupId = GroupLocalServiceUtil.getGroup(companyId, groupName).getGroupId()
+	long classNameId = ClassNameLocalServiceUtil.getClassNameId(JournalArticle.class.getName())
+	structures = DDMStructureLocalServiceUtil.getClassStructures(companyId, classNameId, -1, -1)
+
+	
+	for(structure in structures){
+		structureId=structure.getStructureId()
+		if(groupId==structure.getGroupId()){
+				templates = DDMTemplateLocalServiceUtil.getTemplatesByClassPK(groupId, structureId)
+				for(template in templates){
+					templateId=template.getTemplateId()
+					println("TEMPLATE:  "+templateId+"\t"+template.getUuid()+"\t"+template.getName())
+				}
+				println("STRUCTURE: "+structureId+"\t"+structure.getUuid()+"\t"+structure.getStructureKey()+"\t"+structure.getParentStructureId() +"\t"+structure.getName())
+		}
+	}
+}catch(Exception e){
+	println(e.getMessage())
+}

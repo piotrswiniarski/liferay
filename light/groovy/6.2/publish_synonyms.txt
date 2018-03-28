@@ -1,0 +1,10 @@
+import com.mimacom.elasticsearch.synonyms.util.SynonymsUtil
+import com.liferay.portal.util.PortalUtil
+
+try{
+long companyId=PortalUtil.getCompany(actionRequest).getCompanyId()
+SynonymsUtil.publishSynonyms(companyId)
+println("finished")
+}catch(Exception e){
+out.println(e.getMessage())
+}

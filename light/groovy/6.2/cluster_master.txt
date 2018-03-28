@@ -1,0 +1,4 @@
+import com.liferay.portal.kernel.cluster.ClusterMasterExecutorUtil;
+
+ClusterMasterExecutorUtil cmeu = new ClusterMasterExecutorUtil();
+out.println("master node?" + cmeu.isMaster());

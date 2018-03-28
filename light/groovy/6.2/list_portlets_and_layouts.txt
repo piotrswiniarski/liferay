@@ -1,0 +1,36 @@
+import com.liferay.portal.service.*;
+import com.liferay.portlet.documentlibrary.model.*;
+import com.liferay.portlet.documentlibrary.service.*;
+import com.liferay.portlet.documentlibrary.service.persistence.*;
+try{
+
+  def start = -1 
+  def end = -1
+  	
+  def layouts = LayoutLocalServiceUtil.getLayouts(start, end )
+  println('layouts found='+layouts.size())
+  for(i=0;i<layouts.size();i++){
+    def layout = layouts[i];
+        url=layout.getGroup().getFriendlyURL()+layout.getFriendlyURL()
+
+//    if(layout.getTypeSettings().contains('WAR_VDN_PORTLETS')){
+lines=layout.getTypeSettings().split("\n")
+     for(line in lines){
+          if(line.startsWith("column"))
+              if(!line.split("=")[0].endsWith("customizable")){
+                    portletsString=line.split("=")[1]
+                    if(portletsString!=null){
+                         portlets=portletsString.split(",")
+                         for(portlet in portlets){
+                              println(portlet+"\t"+url)
+                         }
+
+                     }
+               }
+      }
+
+//    }
+  }
+} catch (Exception e) {
+	println(e)
+}

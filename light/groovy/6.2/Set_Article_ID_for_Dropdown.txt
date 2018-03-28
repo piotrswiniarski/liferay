@@ -1,0 +1,23 @@
+import  com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil;
+import  com.liferay.portlet.journal.service.JournalArticleResourceLocalServiceUtil;
+groupId=10620
+oldArticleId="2539321"
+articleId="2570875"
+
+try{
+JournalArticleLocalServiceUtil.getArticle(groupId, articleId)
+JournalArticleResourceLocalServiceUtil.fetchArticleResource(groupId, articleId)
+println("Article with id "+articleId+" already exists! Id was not replaced")
+}catch(Exception ex){
+  try{
+    article=JournalArticleLocalServiceUtil.getArticle(groupId, oldArticleId)
+    resource=JournalArticleResourceLocalServiceUtil.fetchArticleResource(groupId, oldArticleId)
+    article.setArticleId(articleId)
+    resource.setArticleId(articleId)
+    JournalArticleLocalServiceUtil.updateJournalArticle(article)
+    JournalArticleResourceLocalServiceUtil.updateJournalArticleResource(resource)
+    println("Updated article ID")
+  }catch(Exception e){
+    println(e.getMessage())
+  }
+}

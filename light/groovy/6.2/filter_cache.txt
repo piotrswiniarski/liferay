@@ -1,0 +1,8 @@
+import com.liferay.portal.servlet.filters.cache.CacheUtil;
+import com.liferay.portal.util.PortalUtil;
+
+key="/lukb-new-theme/images/filler/2x1/lukb2.jpg"
+
+companyId=PortalUtil.getCompany(actionRequest).getCompanyId()
+output=CacheUtil.getCacheResponseData(companyId, key)
+println(output)

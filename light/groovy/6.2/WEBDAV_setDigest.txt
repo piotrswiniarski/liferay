@@ -1,0 +1,19 @@
+import com.liferay.portal.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.util.DigesterUtil;
+import com.liferay.portal.security.pwd.PasswordEncryptorUtil;
+
+userId =2606807
+password = "test1"
+
+try{
+user=UserLocalServiceUtil.getUser(userId)
+digest=user.getDigest(password)
+out.println(user);
+user.setPassword(password);
+user.setDigest(digest);
+println(digest)
+UserLocalServiceUtil.updateUser(user);
+println("OK")
+}catch(Exception e){
+println(e.getMessage())
+}

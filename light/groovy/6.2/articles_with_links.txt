@@ -1,0 +1,16 @@
+import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil
+lukbGroupId=10620
+
+try{
+      jas=JournalArticleLocalServiceUtil.getArticles(lukbGroupId, 0, 1000)
+//        jas=JournalArticleLocalServiceUtil.getArticles(lukbGroupId, -1, -1)
+
+
+	for(ja in jas){
+	if(JournalArticleLocalServiceUtil.isLatestVersion(ja.getGroupId(), ja.getArticleId(), ja.getVersion())){
+	println(ja.getArticleId()+"\t"+ja.getTitle("de_DE")+"\t"+ja.getStatus()+"\t"+"https://www.lukb.ch/web/lukb/-/"+ja.getUrlTitle())
+	}
+	}
+}catch(Exception e){
+	println(e.getMessage())
+}

@@ -1,0 +1,20 @@
+import com.liferay.portal.service.LayoutLocalServiceUtil
+import com.liferay.portlet.journal.service.JournalArticleServiceUtil
+try{
+
+items = LayoutLocalServiceUtil.getLayouts(-1, -1)
+start = System.currentTimeMillis();
+for(item in items){
+if(item.getPlid()==10997){
+//continue;
+}
+subitems=JournalArticleServiceUtil.getArticlesByLayoutUuid(item.getGroupId(), item.getUuid())
+out.println(item.getPlid()+"\t"+subitems.size())
+}
+end=System.currentTimeMillis();
+delta=end-start
+out.println("Execution time:"+delta)
+out.println("done: "+items.size())
+}catch(Exception e){
+out.println(e.getMessage())
+}

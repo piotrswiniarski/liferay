@@ -1,0 +1,113 @@
+import com.liferay.portal.kernel.search.*
+import com.liferay.portal.util.PortalUtil;
+import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portlet.journal.model.JournalArticle;
+import java.util.Calendar;
+import java.text.SimpleDateFormat;
+import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
+import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil;
+import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
+
+keywords="orange";
+scopeGroupId=10620
+localeName="de_DE"
+
+try{
+ SearchContext searchContext = new SearchContext();
+ searchContext.setUserId(0);
+ companyId=PortalUtil.getDefaultCompanyId();
+ searchContext.setCompanyId(companyId);
+ searchContext.setStart(0);
+ searchContext.setEnd(1000);
+ searchContext.setEntryClassNames(PropsUtil.getArray("search.assetEntry.classNames"));
+ searchContext.setKeywords(keywords);
+ addJournalStructureFilter(searchContext);
+
+ Indexer indexer = FacetedSearcher.getInstance();
+ Hits hits = indexer.search(searchContext);
+ scores=hits.getScores();
+ out.println(hits.getDocs().length);
+ i=0
+ for(hit in hits.getDocs()){
+  score=scores[i]
+  i++
+  if(hit.get("visible")=="false")
+    continue;
+  entryClassPK=hit.get("entryClassPK")
+  entryClassName=hit.get("entryClassName")
+  entry=AssetEntryLocalServiceUtil.fetchEntry(entryClassName, Long.parseLong(entryClassPK))
+  out.println(entry.getEntryId()+"\t"+entryClassPK+"\t score:"+score+"\t p:"+hit.get("priority")+"\t"+entryClassName+"\t\t"+hit.get("version")+"\t\t"+hit.get("visible"))
+out.println("---------------------------------------------------")
+ }
+}catch(Exception e){
+ out.println(e.getMessage())
+}
+
+private void addJournalStructureFilter(SearchContext searchContext) throws Exception {
+
+     String[] restrictedStructures = PropsUtil.getArray("search.journalArticle.restrictedStructures");
+     if (restrictedStructures == null || restrictedStructures.length == 0) {
+         return;
+     }
+
+     BooleanQuery entryClassNameQuery = BooleanQueryFactoryUtil.create(searchContext);
+     for (String entryClassName : PropsUtil.getArray("search.assetEntry.classNames")) {
+         if (!JournalArticle.class.getName().equals(entryClassName)) {
+             entryClassNameQuery.addTerm(Field.ENTRY_CLASS_NAME, entryClassName, false, BooleanClauseOccur.SHOULD);
+         } else {
+             BooleanQuery journalArticleQuery = BooleanQueryFactoryUtil.create(searchContext);
+             journalArticleQuery.addTerm(Field.ENTRY_CLASS_NAME, entryClassName, false, BooleanClauseOccur.MUST);
+
+             Calendar nowDate = Calendar.getInstance();
+             nowDate.add(Calendar.DATE, 1);
+             SimpleDateFormat sdf = new SimpleDateFormat("YYYYMMdd");
+             String now = sdf.format(nowDate.getTime());
+             BooleanQuery structureQuery = BooleanQueryFactoryUtil.create(searchContext);
+
+             for (DDMStructure structure : DDMStructureLocalServiceUtil.getStructures(scopeGroupId)) {
+                 String structureName = structure.getName(localeName);
+                 boolean isRestricted = false;
+                 for (String restrictedStructure : restrictedStructures) {
+                     if (restrictedStructure.startsWith(structureName)) {
+                         if (restrictedStructure.contains(":")) {
+                             String value = restrictedStructure.substring(structureName.length() + 1);
+                             try {
+                                 String then = null;
+                                 if (value.length() < 8) {
+                                     Calendar before = Calendar.getInstance();
+                                     before.add(Calendar.DATE, -Integer.valueOf(value));
+                                     then = sdf.format(before.getTime());
+                                 } else {
+                                     then = value;
+                                 }
+                                 BooleanQuery dateQuery = BooleanQueryFactoryUtil.create(searchContext);
+                                 dateQuery.addTerm(Field.CLASS_TYPE_ID, String.valueOf(structure.getStructureId()), false,
+                                         BooleanClauseOccur.MUST);
+                                 dateQuery.add(TermRangeQueryFactoryUtil.create(searchContext, "displayDate", then + "000000", now
+                                         + "000000", true, true), BooleanClauseOccur.MUST);
+                                 structureQuery.add(dateQuery, BooleanClauseOccur.SHOULD);
+                             } catch (NumberFormatException e) {
+                                 _log.error("Could not parse day span of structure " + structureName, e);
+                             }
+                         }
+                         isRestricted = true;
+                         break;
+                     }
+                 }
+                 if (!isRestricted) {
+                     structureQuery.addTerm(Field.CLASS_TYPE_ID, String.valueOf(structure.getStructureId()), false,
+                             BooleanClauseOccur.SHOULD);
+                 }
+             }
+
+             journalArticleQuery.add(structureQuery, BooleanClauseOccur.MUST);
+
+             entryClassNameQuery.add(journalArticleQuery, BooleanClauseOccur.SHOULD);
+         }
+	}
+
+     BooleanClause clause = BooleanClauseFactoryUtil.create(searchContext, entryClassNameQuery, BooleanClauseOccur.MUST.getName());
+	 BooleanClause[] booleanClauses = [ clause ] as BooleanClause[];
+     searchContext.setBooleanClauses(booleanClauses);
+
+}

@@ -1,0 +1,59 @@
+import javax.servlet.http.*
+import com.liferay.portal.kernel.search.*;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.service.*;
+import com.liferay.portlet.journal.service.*;
+import com.liferay.portlet.journal.model.*;
+import com.liferay.portal.util.*;
+import com.liferay.portal.NoSuchResourcePermissionException;
+import com.liferay.portal.model.ResourceConstants;
+
+roleParams="ArticleId,pay_only_xfer,std_custr_ch,site member"
+groupId=10620
+def list = []
+
+list << '991503,0,0,1'
+list << '1386846,0,0,1'
+list << '1423926,0,0,1'
+
+
+
+for(zeile in list){
+
+	werte=zeile.split(",")
+	roles= roleParams.split(",")
+	actionId="VIEW"
+	actionIds="VIEW".split(",")
+	try{
+		long companyId=PortalUtil.getCompany(actionRequest).getCompanyId()
+		
+		int i=0
+		article=JournalArticleLocalServiceUtil.getArticle(groupId, werte[0])
+		for(role in roles){
+		  if(i>0){
+			roleId= RoleLocalServiceUtil.getRole(companyId, role).getRoleId()
+			hasPermission=ResourcePermissionLocalServiceUtil.hasResourcePermission(companyId, JournalArticle.class.getName(), ResourceConstants.SCOPE_INDIVIDUAL, article.getArticleResource().getPrimaryKey()+"", roleId, actionId)
+			
+			println("has permission: "+hasPermission)
+			if(hasPermission==false && werte[i].toBoolean()==true){
+				  ResourcePermissionLocalServiceUtil.setResourcePermissions(companyId, JournalArticle.class.getName(), ResourceConstants.SCOPE_INDIVIDUAL, article.getArticleResource().getPrimaryKey()+"", roleId, actionIds)	   
+			   println("updating: "+article.getArticleId()+"\t"+roleId+" "+werte[i])
+			} else if(hasPermission!=werte[i].toBoolean()){
+			   println("updating: "+article.getArticleId()+"\t"+roleId+" "+werte[i])
+			   resource= ResourcePermissionLocalServiceUtil.getResourcePermission(companyId, JournalArticle.class.getName(), ResourceConstants.SCOPE_INDIVIDUAL, article.getArticleResource().getPrimaryKey()+"", roleId)
+			   if(resource.hasActionId(actionId)){
+				  resource.removeResourceAction(actionId)
+			   }else{
+				  resource.addResourceAction(actionId)
+			   }
+			   ResourcePermissionLocalServiceUtil.updateResourcePermission(resource)
+			}
+		  }
+		  i++
+		}
+
+
+	}catch(Exception e){
+	println(e.getMessage())
+	}
+}
