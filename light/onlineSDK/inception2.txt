@@ -1,0 +1,70 @@
+import com.liferay.portal.kernel.util.WebKeys
+import com.liferay.document.library.kernel.service.*
+import com.liferay.document.library.kernel.exception.NoSuchFolderException
+import com.liferay.portal.kernel.service.ServiceContextFactory
+import javax.mail.internet.InternetAddress
+import com.liferay.mail.kernel.model.MailMessage
+import com.liferay.mail.kernel.service.MailServiceUtil
+
+
+try{
+    themeDisplay=actionRequest.getAttribute(WebKeys.THEME_DISPLAY)
+    sc=ServiceContextFactory.getInstance(actionRequest)
+    groupId=themeDisplay.getScopeGroupId()
+//    document = DLFileEntryLocalServiceUtil.getFileEntry(33506)
+    document = DLFileEntryLocalServiceUtil.getFileEntry(Long.valueOf("${fileEntryId}"))
+    updateDocument(groupId, document)
+}catch(Exception e){
+    println(e.getMessage())
+}
+
+def sendMail(url){
+    sender = new InternetAddress()
+    sender.setAddress("piotrswiniarski@gmail.com")
+    sender.setPersonal("Liferay DXP")
+    receiver = new InternetAddress()
+    receiver.setAddress("piotr.swiniarski@mimacom.com")
+    subject = "New mountain picture"
+    body = "Somebody added new photo of mountains: "+url
+    message = new MailMessage()
+    
+    message.setFrom(sender)
+    message.setTo(receiver)
+    message.setSubject(subject)
+    message.setBody(body)
+    message.setHTMLFormat(false)
+    
+    MailServiceUtil.sendEmail(message)
+}
+
+def updateDocument(groupId, document){
+    imgPath='/tmp/input.jpg'
+    link='http://localhost:8080/documents/'+groupId+'/'+document.getUuid()
+    def exec1 = { cmd -> def p = cmd.execute()}
+    exec1('curl -o '+imgPath+' '+link)
+    def buffer = new StringBuffer()
+    def exec2 = { cmd -> def p = cmd.execute(); p.waitForProcessOutput(buffer, buffer)}
+    exec2('python2 /Users/piotr/development/projects/serving/tensorflow_serving/example/inception_client.py  --server=localhost:9000 --image='+imgPath)
+    def keywords = []
+    def exec3 = { cmd -> def p = cmd.execute()}
+    String[] splitData = buffer.toString().split("\n")
+    for(eachSplit in splitData){
+        if(eachSplit.contains("string_val")){
+            keywords << eachSplit.trim().split("\"")[1]
+        }
+    }
+    if(keywords.size()>0){
+        folderName=keywords[0]
+        folderId=0
+        try{
+            folder = DLAppLocalServiceUtil.getFolder(groupId, 0, folderName)
+            folderId=folder.getFolderId()
+        }catch(NoSuchFolderException pe){
+            folder = DLAppLocalServiceUtil.addFolder(document.getUserId(), groupId, 0, folderName, "", sc)
+            folderId=folder.getFolderId()
+        }
+        DLAppLocalServiceUtil.moveFileEntry(document.getUserId(), document.getFileEntryId(), folderId, sc) 
+        println(document.getTitle()+" -> "+folderName+"</br>")
+        sendMail(link)
+    }
+}

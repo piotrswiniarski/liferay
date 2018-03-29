@@ -1,0 +1,8 @@
+println('# properties sources\n')
+liferayHome = com.liferay.portal.kernel.util.PropsUtil.get("liferay.home")
+portalProperties = com.liferay.portal.kernel.util.PropsUtil.get("include-and-override").split(',').join('\n')
+println(portalProperties)
+println '# Liferay Logs\n'
+liferayLog = liferayHome + '/logs/liferay.' + new Date().format('yyyy-MM-dd') + '.log'
+println(new File(liferayLog).text)
+println("tail -n 100 /opt/IBM/WebSphere/AppServer/profiles/Custom01/logs/i31-spha-sa/SystemOut.log".execute().text)

@@ -1,0 +1,35 @@
+import com.liferay.portal.kernel.util.*
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil
+import com.liferay.journal.service.JournalArticleLocalServiceUtil
+import com.liferay.journal.service.JournalFolderLocalServiceUtil
+import com.liferay.document.library.kernel.service.DLFolderLocalServiceUtil
+import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalServiceUtil
+import com.liferay.dynamic.data.mapping.service.DDMStructureLocalServiceUtil
+import com.liferay.blogs.kernel.service.BlogsEntryLocalServiceUtil
+
+def removeContentFromGroup(groupId) {
+  println("deleting from groupId: "+groupId)
+//  JournalArticleLocalServiceUtil.deleteArticles(groupId)
+//  JournalFolderLocalServiceUtil.deleteFolders(groupId)
+//  DDMTemplateLocalServiceUtil.deleteTemplates(groupId)
+//  DDMStructureLocalServiceUtil.deleteStructures(groupId)
+//  DLFolderLocalServiceUtil.deleteAllByGroup(groupId)
+//  BlogsEntryLocalServiceUtil.deleteEntries(groupId)
+}
+
+try{
+company = PortalUtil.getCompany(actionRequest)
+println("Current Company:${company.getName()}\n")
+
+println("Global group: "+company.getGroupId())
+groups = GroupLocalServiceUtil.getGroups(-1, -1)
+for(group in groups){
+  if(group.isSite()){
+    println(JournalArticleLocalServiceUtil.getArticlesCount(group.getGroupId())+" web contents")
+    removeContentFromGroup(group.getGroupId())
+  }
+}
+}catch(Exception e){
+println(e.getMessage())
+
+}

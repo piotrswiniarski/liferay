@@ -1,0 +1,30 @@
+import javax.mail.internet.InternetAddress
+import com.liferay.mail.kernel.model.MailMessage
+import com.liferay.mail.kernel.service.MailServiceUtil
+
+
+try{
+    sendMail("sample url")
+}catch(Exception e){
+    println(e.getMessage())
+}
+
+def sendMail(url){
+    sender = new InternetAddress()
+    sender.setAddress("piotrswiniarski@gmail.com")
+    sender.setPersonal("Liferay DXP")
+    receiver = new InternetAddress()
+    receiver.setAddress("piotr.swiniarski@mimacom.com")
+    subject = "New mountain picture"
+    body = "Somebody added new photo of mountains: "+url
+    message = new MailMessage()
+    
+    message.setFrom(sender)
+    message.setTo(receiver)
+    message.setSubject(subject)
+    message.setBody(body)
+    message.setHTMLFormat(false)
+    
+    MailServiceUtil.sendEmail(message)
+    println("sent mail)
+}

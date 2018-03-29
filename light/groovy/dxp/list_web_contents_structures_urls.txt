@@ -1,0 +1,75 @@
+import com.liferay.portal.service.*;
+import com.liferay.portal.kernel.service.LayoutLocalServiceUtil
+import com.liferay.portal.kernel.service.PortletPreferencesLocalServiceUtil
+import com.liferay.dynamic.data.mapping.service.DDMStructureLocalServiceUtil
+import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalServiceUtil
+import com.liferay.portal.kernel.util.*;
+import com.liferay.journal.service.JournalArticleLocalServiceUtil
+import com.liferay.portal.kernel.service.ClassNameLocalServiceUtil
+import com.liferay.portal.kernel.exception.PortalException
+
+def list = []
+def start = -1 
+def end = -1
+
+try{
+//ddm= DDMTemplateLocalServiceUtil.getTemplate(266255)
+//println(ddm)
+  def layouts = LayoutLocalServiceUtil.getLayouts(start, end )
+  for(i=0;i<layouts.size();i++){
+    def layout = layouts[i];
+        url=layout.getGroup().getFriendlyURL()+layout.getFriendlyURL()
+
+lines=layout.getTypeSettings().split("\n")
+     for(line in lines){
+          if(line.startsWith("column"))
+              if(!line.split("=")[0].endsWith("customizable")){
+                    portletsString=line.split("=")[1]
+                    if(portletsString!=null){
+                         portlets=portletsString.split(",")
+                         for(portlet in portlets){
+                              preferences = PortletPreferencesLocalServiceUtil.getPortletPreferences(layout.getPlid(), portlet).toString()
+                              isWebcontent=preferences.contains("articleId")
+                              if(isWebcontent)
+                                    list << [url, preferences]
+                         }
+
+                     }
+               }
+      }
+
+  }
+
+} catch (Exception e) {
+	println(e)
+}
+
+
+
+try{
+	classNameId=ClassNameLocalServiceUtil.getClassNameId("com.liferay.journal.model.JournalArticle")
+	templateClassNameId=ClassNameLocalServiceUtil.getClassNameId("com.liferay.dynamic.data.mapping.model.DDMStructure")
+	long groupId=PortalUtil.getCompany(actionRequest).getGroup().getGroupId();
+	articles = JournalArticleLocalServiceUtil.getArticles()
+	println("Article Id\tPage url\tStructure Id\tStructure name\tTemplate Id\tGroup Id\tArticle version\tArticle title")
+	for(article in articles){
+		url=""
+		for(int i=0; i<list.size(); i++){
+			if(list[i][1].contains(article.getArticleId())){
+				url+=list[i][0]+", "
+			}
+		}
+		structure=DDMStructureLocalServiceUtil.getStructure(groupId, classNameId, article.getStructureId())
+		template=""
+		try{
+			template=DDMTemplateLocalServiceUtil.getTemplate(groupId, templateClassNameId, article.getTemplateId()).getTemplateId()
+
+		}catch(PortalException pe){
+
+		}
+		println(article.getArticleId()+"\t"+url+"\t"+structure.getStructureId()+"\t"+structure.getName()+"\t"+template+"\t"+article.getGroupId()+"\t"+article.getVersion()+"\t"+article.getTitle("en_US"))
+	}
+
+}catch(Exception e){
+	println(e.getMessage())
+}

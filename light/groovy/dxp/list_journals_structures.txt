@@ -1,0 +1,19 @@
+import com.liferay.dynamic.data.mapping.service.DDMStructureLocalServiceUtil
+import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalServiceUtil
+import com.liferay.portal.kernel.util.*;
+import com.liferay.journal.service.JournalArticleLocalServiceUtil
+import com.liferay.portal.kernel.service.ClassNameLocalServiceUtil
+
+try{
+	long groupId=PortalUtil.getCompany(actionRequest).getGroup().getGroupId();
+	articles = JournalArticleLocalServiceUtil.getArticles()
+	println("A_Id\tS_Id\tS_name\t\t\t\tG_Id")
+	for(article in articles){
+
+		structure=DDMStructureLocalServiceUtil.getStructure(groupId, ClassNameLocalServiceUtil.getClassNameId("com.liferay.journal.model.JournalArticle"), article.getStructureId())
+		println(article.getArticleId()+"\t"+structure.getStructureId()+"\t"+structure.getName()+"\t\t\t\t"+article.getGroupId()+"\t"+article.getVersion()+"\t"+article.getTitle("en_US"))
+	}
+
+}catch(Exception e){
+	println(e.getMessage())
+}

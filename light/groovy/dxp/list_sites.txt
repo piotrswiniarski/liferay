@@ -1,0 +1,17 @@
+import com.liferay.portal.kernel.util.*
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil
+try{
+company = PortalUtil.getCompany(actionRequest)
+println("Current Company:${company.getName()}\n")
+
+println("Global group: "+company.getGroupId())
+groups = GroupLocalServiceUtil.getGroups(-1, -1)
+for(group in groups){
+  if(group.isSite()){
+    println(group)
+  }
+}
+}catch(Exception e){
+println(e.getMessage())
+
+}

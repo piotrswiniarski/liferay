@@ -1,0 +1,10 @@
+import com.liferay.blogs.kernel.service.BlogsEntryLocalServiceUtil
+
+try{
+blogs=BlogsEntryLocalServiceUtil.getBlogsEntries(-1, -1)
+for(blog in blogs){
+println(blog.getEntryId()+"\t"+blog.getGroupId()+"\t"+blog.getTitle())
+}
+} catch (Exception e) {
+	println(e)
+}
